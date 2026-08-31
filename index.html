@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
   <main class="page-shell">
@@ -43,7 +43,7 @@
         <label class="upload-button" for="photo-upload"><span aria-hidden="true">↑</span> Choose a photo</label>
         <input id="photo-upload" type="file" accept="image/*" hidden>
         <p class="upload-note" id="upload-note">Use a warm photo from your phone. Uploaded photos stay only in this browser.</p>
-        <p class="photo-reminder danger">Use real photos from church services, activities, family, or daily life. Do not use stock or AI model photos.</p>
+        <p class="photo-reminder danger"><span class="photo-reminder-full">Use real photos from church services, activities, family, or daily life. Do not use stock or AI model photos.</span><span class="photo-reminder-short">Real photos only. No stock or AI photos.</span></p>
         <p class="eyebrow editor-heading">Choose the words for your image</p>
          <button class="edit-row" type="button" data-field="title"><span class="edit-icon" aria-hidden="true">T</span><span><strong>Title</strong><small id="title-summary">Come to me, all you who are weary and burdened, and I will give you rest</small></span><span class="chevron" aria-hidden="true">›</span></button>
          <button class="edit-row" type="button" data-field="subtitle"><span class="edit-icon voice" aria-hidden="true">⌁</span><span><strong>Subtitle</strong><small id="subtitle-summary">Matthew  11:28</small></span><span class="chevron" aria-hidden="true">›</span></button>
@@ -72,6 +72,6 @@
   <div class="guide-layer" id="guide-layer" hidden aria-live="polite"></div>
   <script src="templates/templates.js?v=21"></script>
   <script src="supabase-config.js?v=2"></script>
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>

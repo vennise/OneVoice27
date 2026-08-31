@@ -103,7 +103,7 @@ function showCaptionTip() {
 }
 
 function setupComposer() {
-  $("#caption-guide-button").textContent = "💡 Try an idea";
+  $("#caption-guide-button").textContent = "💡 Show tips";
   const actions = $(".platform-actions");
   const shareButton = document.createElement("button");
   shareButton.type = "button";
@@ -134,17 +134,24 @@ function setupComposer() {
 function clearGuide() {
   $("#guide-layer").replaceChildren();
   $("#guide-layer").hidden = true;
+  document.querySelectorAll(".guide-inline-callout").forEach((element) => element.remove());
   document.querySelectorAll(".guide-highlight").forEach((element) => element.classList.remove("guide-highlight"));
 }
 
 function addGuideCallout(target, message, step) {
   const rect = target.getBoundingClientRect();
+  const isSmallScreen = window.matchMedia("(max-width: 600px)").matches;
   const callout = document.createElement("div");
   callout.className = "guide-callout";
   callout.textContent = `${step ? `${step}. ` : ""}${message}`;
-  callout.style.left = `${Math.min(Math.max(12, rect.left), window.innerWidth - 292)}px`;
-  callout.style.top = `${Math.min(rect.bottom + 12, window.innerHeight - 90)}px`;
-  $("#guide-layer").append(callout);
+  if (isSmallScreen) {
+    callout.classList.add("guide-inline-callout");
+    target.insertAdjacentElement("afterend", callout);
+  } else {
+    callout.style.left = `${Math.min(Math.max(12, rect.left), window.innerWidth - 292)}px`;
+    callout.style.top = `${Math.min(rect.bottom + 12, window.innerHeight - 90)}px`;
+    $("#guide-layer").append(callout);
+  }
   target.classList.add("guide-highlight");
 }
 
@@ -174,23 +181,31 @@ function dismissCreationGuide() {
   guideState = "waiting-for-image";
 }
 
+function dismissGuideMessage(expectedState) {
+  if (guideState === expectedState) clearGuide();
+}
+
 function showComposerGuide() {
   if (guideState !== "waiting-for-image") return;
   guideState = "writing-caption";
   guideCaptionWritten = false;
+  if (window.matchMedia("(max-width: 600px)").matches) return;
   const layer = $("#guide-layer");
   layer.hidden = false;
   layer.replaceChildren();
   addGuideCallout($("#caption-input"), "Write your story about the picture!", "");
+  setTimeout(() => document.addEventListener("click", () => dismissGuideMessage("writing-caption"), { once:true }), 100);
 }
 
 function showSharingGuide() {
   if (guideState !== "writing-caption" || !guideCaptionWritten) return;
   guideState = "sharing";
   clearGuide();
+  if (window.matchMedia("(max-width: 600px)").matches) return;
   const layer = $("#guide-layer");
   layer.hidden = false;
   addGuideCallout($(".platform-actions"), "Your story is ready. Choose where to share it.", "");
+  setTimeout(() => document.addEventListener("click", () => dismissGuideMessage("sharing"), { once:true }), 100);
 }
 
 function resetGuideIdleTimer() {
