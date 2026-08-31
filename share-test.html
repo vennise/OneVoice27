@@ -21,23 +21,27 @@
     label { display:block; margin-bottom:8px; font-size:14px; font-weight:700; }
     textarea { width:100%; min-height:130px; padding:12px; color:#12374a; background:#fff; border:1px solid #c8dfdc; border-radius:10px; font:14px/1.5 Montserrat,Arial,sans-serif; resize:vertical; }
     #copy-caption { width:100%; margin-top:12px; }
+    #image-preview { display:block; width:100%; max-height:380px; margin:20px auto 0; border:1px solid #c8dfdc; border-radius:12px; object-fit:contain; }
+    #image-preview[hidden] { display:none; }
+    @media (max-width:520px) { main { padding:24px 18px; }.language-actions { gap:7px; }.language-actions button { padding-inline:8px; font-size:13px; }#image-preview { max-height:320px; } }
   </style>
 </head>
 <body>
   <main>
-    <h1>Share test post</h1>
+    <h1 id="test-title">Share test post</h1>
     <p id="status" aria-live="polite">Choose a language to create and download the test image.</p>
     <div class="language-actions" aria-label="Choose language">
       <button type="button" data-language="english">English</button>
-      <button type="button" data-language="chinese">Chinese</button>
+      <button type="button" data-language="chinese">中文</button>
       <button type="button" data-language="malay">Malay</button>
     </div>
+    <img id="image-preview" alt="Generated test post image" hidden>
     <div id="result" hidden>
-      <label for="caption">Caption and hashtag</label>
+      <label id="caption-label" for="caption">Caption and hashtag</label>
       <textarea id="caption" readonly></textarea>
-      <button id="copy-caption" type="button">Copy caption</button>
+      <button id="copy-caption" type="button">Download image and copy caption</button>
     </div>
   </main>
-  <script src="share-test.js?v=6"></script>
+  <script src="share-test.js?v=8"></script>
 </body>
 </html>

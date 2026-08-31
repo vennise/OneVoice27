@@ -2,24 +2,60 @@ const posts = {
   english: {
     title: "Come to me, all you\nwho are weary and\nburdened, and I will\ngive you rest",
     subtitle: "Matthew  11:28",
-    caption: "I have personally experienced God when I was in complete mess. He is a very presence help in trouble\n#All THINGS NEW"
+    caption: "I have personally experienced God when I was in trouble. He is a very presence help in trouble\n#All THINGS NEW",
+    ui: {
+      title: "Share test post",
+      creating: "Creating the image...",
+      ready: "The image is ready. Download it and copy the caption when you are ready.",
+      captionLabel: "Caption and hashtag",
+      copy: "Download image and copy caption",
+      copied: "The image download started and the caption and hashtag were copied to your clipboard.",
+      blocked: "Clipboard access was blocked. Allow clipboard permission, then try again.",
+      imageAlt: "Generated test post image",
+      error: "The test image could not be created."
+    }
   },
   chinese: {
-    title: "凡劳苦担重担的人，\n可以到我这里来，\n我就使你们得安息",
+    title: "凡劳苦担重担的\n人，可以到我这里来，\n我就使你们得安息",
     subtitle: "马太福音 11:28",
     caption: "我曾亲身经历神在我患难时的帮助。祂是在患难中随时帮助我们的神。\n#All THINGS NEW",
-    font: "'Noto Sans SC'"
+    font: "'Noto Sans SC'",
+    ui: {
+      title: "分享测试帖子",
+      creating: "正在生成图片...",
+      ready: "图片已准备好。您可以下载图片并复制下方的文案。",
+      captionLabel: "文案和标签",
+      copy: "下载图片并复制文案",
+      copied: "图片已开始下载，文案和标签已复制到剪贴板。",
+      blocked: "剪贴板访问被阻止。请允许剪贴板权限后再试。",
+      imageAlt: "生成的测试帖子图片",
+      error: "无法创建测试图片。"
+    }
   },
   malay: {
     title: "Marilah kepada-Ku,\nsemua yang letih lesu\ndan berbeban berat,\nAku akan memberi\nkelegaan kepadamu",
     subtitle: "Matius 11:28",
-    caption: "Saya sendiri telah mengalami pertolongan Tuhan ketika saya dalam kesusahan. Dia adalah Penolong yang sentiasa hadir dalam kesusahan.\n#All THINGS NEW"
+    caption: "Saya sendiri telah mengalami pertolongan Tuhan ketika saya dalam kesusahan. Dia adalah Penolong yang sentiasa hadir dalam kesusahan.\n#All THINGS NEW",
+    ui: {
+      title: "Catatan ujian perkongsian",
+      creating: "Sedang mencipta imej...",
+      ready: "Imej sudah sedia. Muat turun imej dan salin kapsyen apabila anda bersedia.",
+      captionLabel: "Kapsyen dan hashtag",
+      copy: "Muat turun imej dan salin kapsyen",
+      copied: "Muat turun imej telah bermula dan kapsyen serta hashtag telah disalin ke papan klip.",
+      blocked: "Akses papan klip telah disekat. Benarkan kebenaran papan klip, kemudian cuba lagi.",
+      imageAlt: "Imej catatan ujian yang dijana",
+      error: "Imej ujian tidak dapat dicipta."
+    }
   }
 };
 
 const width = 940;
 const height = 788;
 let activePost = null;
+let activeLanguage = null;
+let createdImageBlob = null;
+let createdImageUrl = null;
 let creationVersion = 0;
 
 function loadImage(source) {
@@ -41,9 +77,9 @@ function drawWatermark(context) {
   context.save();
   context.textAlign = "center";
   context.fillStyle = "white";
-  context.font = `italic 800 ${watermarkHeight * .8}px Montserrat, Arial, sans-serif`;
-  context.fillText("ALL THINGS NEW", 90 + watermarkWidth / 2, 85 + watermarkHeight * .7);
-  context.font = `300 ${watermarkHeight * .459}px Montserrat, Arial, sans-serif`;
+  context.font = `italic 800 ${watermarkHeight * .55}px Montserrat, Arial, sans-serif`;
+  context.fillText("ALL THINGS NEW", 90 + watermarkWidth / 2, 85 + watermarkHeight * .58);
+  context.font = `300 ${watermarkHeight * .3}px Montserrat, Arial, sans-serif`;
   context.fillText("HOPE STARTS HERE", 90 + watermarkWidth / 2, 85 + watermarkHeight);
   context.restore();
 }
@@ -79,6 +115,13 @@ function downloadImage(blob, language) {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+function updatePageText(post) {
+  document.querySelector("#test-title").textContent = post.ui.title;
+  document.querySelector("#caption-label").textContent = post.ui.captionLabel;
+  document.querySelector("#copy-caption").textContent = post.ui.copy;
+  document.querySelector("#image-preview").alt = post.ui.imageAlt;
+}
+
 async function copyCaption() {
   if (!activePost) return false;
   try {
@@ -94,18 +137,22 @@ async function copyCaption() {
 
 async function copyCaptionAgain() {
   const copied = await copyCaption();
-  document.querySelector("#status").textContent = copied ? "Caption and hashtag copied to your clipboard." : "Clipboard access was blocked. Allow clipboard permission, then try again.";
+  if (createdImageBlob) downloadImage(createdImageBlob, activeLanguage);
+  document.querySelector("#status").textContent = copied ? activePost.ui.copied : activePost.ui.blocked;
 }
 
 async function createTestPost(language) {
+  if (language === activeLanguage) return;
   const post = posts[language];
   const status = document.querySelector("#status");
   const version = ++creationVersion;
   activePost = post;
+  activeLanguage = language;
+  updatePageText(post);
   document.querySelector("#caption").value = post.caption;
   document.querySelector("#result").hidden = false;
   document.querySelectorAll("[data-language]").forEach((button) => button.classList.toggle("is-selected", button.dataset.language === language));
-  status.textContent = "Creating the image...";
+  status.textContent = post.ui.creating;
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     const [background, logo] = await Promise.all([
@@ -127,10 +174,15 @@ async function createTestPost(language) {
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) throw new Error("Image creation failed");
     if (version !== creationVersion) return;
-    downloadImage(blob, language);
-    status.textContent = "The image download started. Copy the caption below when you are ready.";
+    if (createdImageUrl) URL.revokeObjectURL(createdImageUrl);
+    createdImageBlob = blob;
+    createdImageUrl = URL.createObjectURL(blob);
+    const preview = document.querySelector("#image-preview");
+    preview.src = createdImageUrl;
+    preview.hidden = false;
+    status.textContent = post.ui.ready;
   } catch {
-    status.textContent = "The test image could not be created.";
+    status.textContent = post.ui.error;
   }
 }
 
