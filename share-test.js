@@ -78,6 +78,11 @@ async function copyCaption() {
   }
 }
 
+async function copyCaptionAgain() {
+  const copied = await copyCaption();
+  document.querySelector("#status").textContent = copied ? "Caption and hashtag copied to your clipboard." : "Clipboard access was blocked. Allow clipboard permission, then try again.";
+}
+
 async function createTestPost() {
   const status = document.querySelector("#status");
   try {
@@ -106,4 +111,5 @@ async function createTestPost() {
   }
 }
 
+document.querySelector("#copy-caption").addEventListener("click", copyCaptionAgain);
 createTestPost();
