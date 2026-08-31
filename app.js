@@ -7,6 +7,7 @@ let activeTemplateIndex = 3;
 let uploadedPhotoUrl = null;
 let createdImageBlob = null;
 let createdImageUrl = null;
+let createdImageDownloaded = false;
 let sampleImageUrl = null;
 let samplePreviewVersion = 0;
 let captionTips = [];
@@ -91,12 +92,12 @@ function showCaptionTip() {
 function setupComposer() {
   $("#caption-guide-button").textContent = "💡 Try an idea";
   const actions = $(".platform-actions");
-  const brands = { facebook:["fa-facebook-f", "Share to Facebook"], whatsapp:["fa-whatsapp", "Send with WhatsApp"], instagram:["fa-instagram", "Share to Instagram"], tiktok:["fa-tiktok", "Share to TikTok"] };
-  Object.entries(brands).forEach(([platform, [icon, label]]) => {
-    const button = actions.querySelector(`[data-platform="${platform}"]`);
-    button.innerHTML = `<i class="fa-brands ${icon}" aria-hidden="true"></i><span>${label}</span>`;
-    button.addEventListener("click", shareCreatedPost);
-  });
+  const button = document.createElement("button");
+  button.type = "button";
+  button.innerHTML = '<i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>Share post</span>';
+  button.addEventListener("click", shareCreatedPost);
+  actions.replaceChildren(button);
+  actions.previousElementSibling.textContent = "Share your post";
   const fallback = document.createElement("p");
   fallback.className = "share-fallback-message";
   fallback.id = "share-fallback-message";
@@ -536,11 +537,16 @@ function drawTemplateText(context, template) {
 }
 
 function downloadImage(blob) {
-  const link = document.createElement("a");
-  link.download = `all-things-new-${activeFormat}.png`;
-  link.href = URL.createObjectURL(blob);
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  try {
+    const link = document.createElement("a");
+    link.download = `all-things-new-${activeFormat}.png`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function prepareImage() {
@@ -548,11 +554,12 @@ async function prepareImage() {
     const imageBlob = await createImage();
     if (!imageBlob) throw new Error("Image creation failed");
     createdImageBlob = imageBlob;
-    downloadImage(imageBlob);
+    createdImageDownloaded = downloadImage(imageBlob);
+    $("#post-composer h2").textContent = createdImageDownloaded ? "Your image is ready" : "Your image is ready to download";
     if (createdImageUrl) URL.revokeObjectURL(createdImageUrl);
     createdImageUrl = URL.createObjectURL(createdImageBlob);
     $("#created-image-preview").src = createdImageUrl;
-    $("#redownload-help").hidden = false;
+    $("#redownload-help").hidden = createdImageDownloaded;
     $("#share-fallback-message").hidden = true;
     $("#processing-state").hidden = true;
     $("#post-composer").hidden = false;
@@ -572,16 +579,28 @@ async function shareCreatedPost() {
   const text = postText();
   const file = new File([createdImageBlob], `all-things-new-${activeFormat}.png`, { type: "image/png" });
   const status = $("#share-status");
-  if (navigator.canShare?.({ files: [file] })) {
-    try { await navigator.share({ title: "All Things New", text, files: [file] }); recordSuccessfulShare(); status.textContent = "Shared successfully."; return; }
-    catch { /* Fall through to the simple download-and-paste instructions. */ }
-  }
-  downloadImage(createdImageBlob);
   let copied = false;
   try {
     if (navigator.clipboard) { await navigator.clipboard.writeText(text); copied = true; }
   } catch { /* Clipboard access can be denied by a browser setting. */ }
-  $("#share-fallback-message").textContent = copied ? "The caption and hashtags are copied to your clipboard. Open the app, choose the image, then paste the text." : "Open the app, choose the downloaded image, then copy the caption and hashtags from above into your post.";
+
+  if (!createdImageDownloaded) {
+    createdImageDownloaded = downloadImage(createdImageBlob);
+    $("#redownload-help").hidden = createdImageDownloaded;
+  }
+
+  if (navigator.share) {
+    try {
+      const shareData = navigator.canShare?.({ files: [file] })
+        ? { title: "All Things New", text, files: [file] }
+        : { title: "All Things New", text };
+      await navigator.share(shareData);
+      recordSuccessfulShare();
+      status.textContent = copied ? "Caption copied. Shared successfully." : "Shared successfully.";
+      return;
+    } catch { /* Explain the browser fallback below. */ }
+  }
+  $("#share-fallback-message").textContent = copied ? "The caption and hashtags are copied to your clipboard. Open Facebook, Instagram, TikTok, or Telegram, choose the image, then paste the text." : "Open Facebook, Instagram, TikTok, or Telegram, choose the image, then copy the caption and hashtags from above into your post.";
   $("#share-fallback-message").hidden = false;
   status.textContent = "";
 }
