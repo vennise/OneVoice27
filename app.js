@@ -122,8 +122,8 @@ function applyUiLanguage() {
   document.querySelectorAll("[data-language]").forEach((button) => button.classList.toggle("is-selected", button.dataset.language === activeLanguage));
   $(".site-header > div .eyebrow").textContent = ui("headerEyebrow");
   $(".site-header h1").textContent = ui("brandTitle");
-  $("#watermark-title").textContent = ui("brandTitle");
-  $("#watermark-subtitle").textContent = ui("brandSubtitle");
+  $("#watermark-title").textContent = "ALL THINGS NEW";
+  $("#watermark-subtitle").textContent = "HOPE STARTS HERE";
   $(".intro .eyebrow").textContent = ui("introEyebrow");
   $("#intro-title").textContent = ui("introTitle");
   $(".intro-copy").textContent = ui("introCopy");
@@ -573,10 +573,10 @@ function drawWatermark(context, template, scale) {
     gradient.addColorStop(1, template.id === "ig-02" ? "#75e6cb" : "#70d7ef");
     context.fillStyle = gradient;
   } else context.fillStyle = "white";
-  context.fillText(ui("brandTitle"), x + width / 2, y + height * .58);
+  context.fillText("ALL THINGS NEW", x + width / 2, y + height * .58);
   context.font = `300 ${height * .3}px Montserrat, Arial, sans-serif`;
   context.fillStyle = template.id === "fb-02" || template.id === "ig-02" ? "black" : "white";
-  context.fillText(ui("brandSubtitle"), x + width / 2, y + height);
+  context.fillText("HOPE STARTS HERE", x + width / 2, y + height);
   context.restore();
 }
 
