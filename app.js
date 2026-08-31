@@ -685,7 +685,6 @@ async function shareCreatedPost() {
 
 $("#share-button").addEventListener("click", () => { if (guideState === "waiting-for-image") clearGuide(); showShareDialog(); prepareImage(); });
 $("#close-share").addEventListener("click", async () => {
-  if (createdImageBlob && !shareActionChosen) await downloadAndCopyPost();
   finishShareDialog();
   clearGuide();
   guideState = "idle";

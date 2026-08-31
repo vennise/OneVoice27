@@ -2,10 +2,10 @@ const posts = {
   english: {
     title: "Come to me, all you\nwho are weary and\nburdened, and I will\ngive you rest",
     subtitle: "Matthew  11:28",
-    caption: "I have personally experienced God when I was in trouble. He is a very presence help in trouble\n#All THINGS NEW"
+    caption: "I have personally experienced God when I was in complete mess. He is a very presence help in trouble\n#All THINGS NEW"
   },
   chinese: {
-    title: "凡劳苦担重担的\n人，可以到我这里来，\n我就使你们得安息",
+    title: "凡劳苦担重担的人，\n可以到我这里来，\n我就使你们得安息",
     subtitle: "马太福音 11:28",
     caption: "我曾亲身经历神在我患难时的帮助。祂是在患难中随时帮助我们的神。\n#All THINGS NEW",
     font: "'Noto Sans SC'"
@@ -41,9 +41,9 @@ function drawWatermark(context) {
   context.save();
   context.textAlign = "center";
   context.fillStyle = "white";
-  context.font = `italic 800 ${watermarkHeight * .55}px Montserrat, Arial, sans-serif`;
-  context.fillText("ALL THINGS NEW", 90 + watermarkWidth / 2, 85 + watermarkHeight * .58);
-  context.font = `300 ${watermarkHeight * .3}px Montserrat, Arial, sans-serif`;
+  context.font = `italic 800 ${watermarkHeight * .8}px Montserrat, Arial, sans-serif`;
+  context.fillText("ALL THINGS NEW", 90 + watermarkWidth / 2, 85 + watermarkHeight * .7);
+  context.font = `300 ${watermarkHeight * .459}px Montserrat, Arial, sans-serif`;
   context.fillText("HOPE STARTS HERE", 90 + watermarkWidth / 2, 85 + watermarkHeight);
   context.restore();
 }
