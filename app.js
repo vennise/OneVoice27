@@ -8,9 +8,11 @@ let uploadedPhotoUrl = null;
 let createdImageBlob = null;
 let createdImageUrl = null;
 let createdImageDownloaded = false;
+let shareActionChosen = false;
 let sampleImageUrl = null;
 let samplePreviewVersion = 0;
 let captionTips = [];
+let textExamples = {};
 let captionTipIndex = 1;
 let guideState = "idle";
 let guideIdleTimer = null;
@@ -75,6 +77,17 @@ async function loadCaptionTips() {
   } catch { captionTips = []; }
 }
 
+async function loadTextExamples() {
+  try {
+    const response = await fetch("templates/text-examples.json");
+    if (!response.ok) throw new Error("Text examples could not be loaded");
+    textExamples = await response.json();
+    $("#generate-text-button").disabled = false;
+  } catch {
+    $("#generate-text-button").textContent = "Text examples unavailable";
+  }
+}
+
 function showCaptionTip() {
   if (!captionTips.length) return;
   const tip = captionTips[captionTipIndex % captionTips.length];
@@ -92,11 +105,16 @@ function showCaptionTip() {
 function setupComposer() {
   $("#caption-guide-button").textContent = "💡 Try an idea";
   const actions = $(".platform-actions");
-  const button = document.createElement("button");
-  button.type = "button";
-  button.innerHTML = '<i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>Share post</span>';
-  button.addEventListener("click", shareCreatedPost);
-  actions.replaceChildren(button);
+  const shareButton = document.createElement("button");
+  shareButton.type = "button";
+  shareButton.innerHTML = '<i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>Share post</span>';
+  shareButton.addEventListener("click", shareCreatedPost);
+  const downloadButton = document.createElement("button");
+  downloadButton.type = "button";
+  downloadButton.className = "download-copy-button";
+  downloadButton.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i><span>Download and copy</span>';
+  downloadButton.addEventListener("click", downloadAndCopyPost);
+  actions.replaceChildren(shareButton, downloadButton);
   actions.previousElementSibling.textContent = "Share your post";
   const fallback = document.createElement("p");
   fallback.className = "share-fallback-message";
@@ -333,6 +351,13 @@ function changeTemplate(direction) {
   updatePreview();
 }
 
+function generateText() {
+  const examples = textExamples[currentTemplate().id];
+  if (!examples?.length) return;
+  Object.assign(state, examples[Math.floor(Math.random() * examples.length)]);
+  updatePreview();
+}
+
 function replaceUploadedPhoto(file) {
   if (!file) return;
   if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
@@ -554,6 +579,7 @@ async function prepareImage() {
     const imageBlob = await createImage();
     if (!imageBlob) throw new Error("Image creation failed");
     createdImageBlob = imageBlob;
+    shareActionChosen = false;
     createdImageDownloaded = downloadImage(imageBlob);
     $("#post-composer h2").textContent = createdImageDownloaded ? "Your image is ready" : "Your image is ready to download";
     if (createdImageUrl) URL.revokeObjectURL(createdImageUrl);
@@ -573,16 +599,28 @@ function postText() {
   return [caption, hashtags].filter(Boolean).join("\n\n");
 }
 
+async function downloadAndCopyPost() {
+  if (!createdImageBlob) return;
+  clearGuide();
+  createdImageDownloaded = downloadImage(createdImageBlob);
+  $("#redownload-help").hidden = createdImageDownloaded;
+  let copied = false;
+  try {
+    if (navigator.clipboard) { await navigator.clipboard.writeText(postText()); copied = true; }
+  } catch { /* Clipboard access can be denied by a browser setting. */ }
+  $("#share-fallback-message").textContent = copied ? "The image was downloaded and the caption and hashtags were copied to your clipboard." : "The image was downloaded. Copy the caption and hashtags above before posting.";
+  $("#share-fallback-message").hidden = false;
+  $("#share-status").textContent = "";
+  shareActionChosen = true;
+  recordSuccessfulShare();
+}
+
 async function shareCreatedPost() {
   if (!createdImageBlob) return;
   clearGuide();
   const text = postText();
   const file = new File([createdImageBlob], `all-things-new-${activeFormat}.png`, { type: "image/png" });
   const status = $("#share-status");
-  let copied = false;
-  try {
-    if (navigator.clipboard) { await navigator.clipboard.writeText(text); copied = true; }
-  } catch { /* Clipboard access can be denied by a browser setting. */ }
 
   if (!createdImageDownloaded) {
     createdImageDownloaded = downloadImage(createdImageBlob);
@@ -596,17 +634,23 @@ async function shareCreatedPost() {
         : { title: "All Things New", text };
       await navigator.share(shareData);
       recordSuccessfulShare();
-      status.textContent = copied ? "Caption copied. Shared successfully." : "Shared successfully.";
+      shareActionChosen = true;
+      status.textContent = "Shared successfully.";
       return;
-    } catch { /* Explain the browser fallback below. */ }
+    } catch { await downloadAndCopyPost(); return; }
   }
-  $("#share-fallback-message").textContent = copied ? "The caption and hashtags are copied to your clipboard. Open Facebook, Instagram, TikTok, or Telegram, choose the image, then paste the text." : "Open Facebook, Instagram, TikTok, or Telegram, choose the image, then copy the caption and hashtags from above into your post.";
-  $("#share-fallback-message").hidden = false;
-  status.textContent = "";
+
+  await downloadAndCopyPost();
 }
 
 $("#share-button").addEventListener("click", () => { if (guideState === "waiting-for-image") clearGuide(); showShareDialog(); prepareImage(); });
-$("#close-share").addEventListener("click", () => { finishShareDialog(); clearGuide(); guideState = "idle"; resetGuideIdleTimer(); });
+$("#close-share").addEventListener("click", async () => {
+  if (createdImageBlob && !shareActionChosen) await downloadAndCopyPost();
+  finishShareDialog();
+  clearGuide();
+  guideState = "idle";
+  resetGuideIdleTimer();
+});
 $("#caption-guide-button").addEventListener("click", showCaptionTip);
 $("#caption-input").addEventListener("input", () => { if (guideState === "writing-caption") guideCaptionWritten = true; });
 $("#caption-input").addEventListener("blur", showSharingGuide);
@@ -626,11 +670,13 @@ $("#reset-button").addEventListener("click", () => {
   $("#upload-note").textContent = "Use a warm photo from your phone. Uploaded photos stay only in this browser.";
   updatePreview();
 });
+$("#generate-text-button").addEventListener("click", generateText);
 
 $("#share-dialog").hidden = true;
 $("#share-dialog").style.display = "none";
 setupComposer();
 loadCaptionTips();
+loadTextExamples();
 updatePreview();
 resetGuideIdleTimer();
 initializeSiteStats();
