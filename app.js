@@ -114,9 +114,17 @@ function setupComposer() {
   const downloadButton = document.createElement("button");
   downloadButton.type = "button";
   downloadButton.className = "download-copy-button";
-  downloadButton.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i><span>Download and copy</span>';
+  downloadButton.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i><span>Download image and copy caption</span>';
   downloadButton.addEventListener("click", downloadAndCopyPost);
-  actions.replaceChildren(shareButton, downloadButton);
+  const copyButton = document.createElement("button");
+  copyButton.type = "button";
+  copyButton.className = "copy-caption-button";
+  copyButton.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copy caption only</span>';
+  copyButton.addEventListener("click", copyCaptionOnly);
+  const secondaryActions = document.createElement("div");
+  secondaryActions.className = "share-actions-secondary";
+  secondaryActions.append(downloadButton, copyButton);
+  actions.replaceChildren(shareButton, secondaryActions);
   actions.previousElementSibling.textContent = "Share your post";
   const fallback = document.createElement("p");
   fallback.className = "share-fallback-message";
@@ -280,8 +288,8 @@ function positionTemplateOverlays() {
   watermark.style.left = `${(template.id === "ig-03" ? 100 : isInstagram && !isTemplateFour ? 120 : isInstagram ? 110 : 90) * scale}px`;
   watermark.style.top = `${(isInstagram && !isTemplateFour ? 140 : isInstagram ? 160 : 85) * scale}px`;
   watermark.style.transform = "none";
-  watermarkTitle.style.fontSize = `${watermarkHeight * .8}px`;
-  watermarkSubtitle.style.fontSize = `${watermarkHeight * .459}px`;
+  watermarkTitle.style.fontSize = `${watermarkHeight * .55}px`;
+  watermarkSubtitle.style.fontSize = `${watermarkHeight * .3}px`;
   watermark.classList.toggle("has-gradient-title", template.id === "fb-02");
   watermark.classList.toggle("has-instagram-gradient-title", template.id === "ig-02");
   watermark.classList.toggle("has-dark-subtitle", template.id === "fb-02" || template.id === "ig-02");
@@ -475,7 +483,7 @@ function drawWatermark(context, template, scale) {
   const y = (isInstagram && !isTemplateFour ? 140 : isInstagram ? 160 : 85) * scale;
   context.save();
   context.textAlign = "center";
-  context.font = `italic 800 ${height * .8}px Montserrat, Arial, sans-serif`;
+  context.font = `italic 800 ${height * .55}px Montserrat, Arial, sans-serif`;
   if (template.id === "fb-02" || template.id === "ig-02") {
     const gradient = context.createLinearGradient(x, y, x + width, y);
     gradient.addColorStop(0, "#98348e");
@@ -483,8 +491,8 @@ function drawWatermark(context, template, scale) {
     gradient.addColorStop(1, template.id === "ig-02" ? "#75e6cb" : "#70d7ef");
     context.fillStyle = gradient;
   } else context.fillStyle = "white";
-  context.fillText("ALL THINGS NEW", x + width / 2, y + height * .7);
-  context.font = `300 ${height * .459}px Montserrat, Arial, sans-serif`;
+  context.fillText("ALL THINGS NEW", x + width / 2, y + height * .58);
+  context.font = `300 ${height * .3}px Montserrat, Arial, sans-serif`;
   context.fillStyle = template.id === "fb-02" || template.id === "ig-02" ? "black" : "white";
   context.fillText("HOPE STARTS HERE", x + width / 2, y + height);
   context.restore();
@@ -632,6 +640,19 @@ async function downloadAndCopyPost() {
   $("#share-status").textContent = "";
   shareActionChosen = true;
   recordSuccessfulShare();
+}
+
+async function copyCaptionOnly() {
+  if (!createdImageBlob) return;
+  clearGuide();
+  let copied = false;
+  try {
+    if (navigator.clipboard) { await navigator.clipboard.writeText(postText()); copied = true; }
+  } catch { /* Clipboard access can be denied by a browser setting. */ }
+  $("#share-fallback-message").textContent = copied ? "The caption and hashtags were copied to your clipboard." : "Clipboard access was blocked. Copy the caption and hashtags above before posting.";
+  $("#share-fallback-message").hidden = false;
+  $("#share-status").textContent = "";
+  shareActionChosen = true;
 }
 
 async function shareCreatedPost() {
