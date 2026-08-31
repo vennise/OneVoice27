@@ -7,21 +7,22 @@
   <title>All Things New Post Creator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
   <main class="page-shell">
     <header class="site-header">
-      <img class="brand-logo" src="resources/images/logo.png" alt="All Things New logo">
-      <div><p class="eyebrow">Hope Starts Here</p><h1>ALL THINGS NEW</h1></div>
-      <p class="visitor-count" id="site-stats" aria-live="polite" hidden><span><strong id="visitor-count">0</strong> visitors</span><span><strong id="share-count">0</strong> shared posts</span></p>
+       <img class="brand-logo" src="resources/images/logo.png" alt="All Things New logo">
+       <div><p class="eyebrow">Hope Starts Here</p><h1>ALL THINGS NEW</h1></div>
+       <div class="language-switch" aria-label="Choose language"><button class="is-selected" type="button" data-language="english">EN</button><button type="button" data-language="chinese">中文</button><button type="button" data-language="malay">BM</button></div>
+       <p class="visitor-count" id="site-stats" aria-live="polite" hidden><span><strong id="visitor-count">0</strong> <span id="visitors-label">visitors</span></span><span><strong id="share-count">0</strong> <span id="shares-label">shared posts</span></span></p>
     </header>
 
     <section class="intro" aria-labelledby="intro-title">
       <div><p class="eyebrow">Share your story</p><h2 id="intro-title">Create a hopeful post from a real moment.</h2><p class="intro-copy">Choose a warm photo, add your words, then create an image ready to share.</p></div>
-      <div class="steps" aria-label="Three steps"><span><b>1</b> Photo</span><span><b>2</b> Words</span><span><b>3</b> Post</span></div>
+      <div class="steps" aria-label="Three steps"><span><b>1</b> <span id="step-photo">Photo</span></span><span><b>2</b> <span id="step-words">Words</span></span><span><b>3</b> <span id="step-post">Post</span></span></div>
     </section>
 
     <section class="workspace" aria-label="Post creator">
@@ -40,14 +41,14 @@
 
       <aside class="editor-card" aria-label="Post controls">
         <p class="eyebrow">Step 1: Create your post image</p>
-        <label class="upload-button" for="photo-upload"><span aria-hidden="true">↑</span> Choose a photo</label>
+        <label class="upload-button" for="photo-upload"><span aria-hidden="true">↑</span><span class="upload-label">Choose a photo</span></label>
         <input id="photo-upload" type="file" accept="image/*" hidden>
         <p class="upload-note" id="upload-note">Use a warm photo from your phone. Uploaded photos stay only in this browser.</p>
         <p class="photo-reminder danger"><span class="photo-reminder-full">Use real photos from church services, activities, family, or daily life. Do not use stock or AI model photos.</span><span class="photo-reminder-short">Real photos only. No stock or AI photos.</span></p>
         <p class="eyebrow editor-heading">Choose the words for your image</p>
          <button class="edit-row" type="button" data-field="title"><span class="edit-icon" aria-hidden="true">T</span><span><strong>Title</strong><small id="title-summary">Come to me, all you who are weary and burdened, and I will give you rest</small></span><span class="chevron" aria-hidden="true">›</span></button>
          <button class="edit-row" type="button" data-field="subtitle"><span class="edit-icon voice" aria-hidden="true">⌁</span><span><strong>Subtitle</strong><small id="subtitle-summary">Matthew  11:28</small></span><span class="chevron" aria-hidden="true">›</span></button>
-         <button class="generate-text-button" id="generate-text-button" type="button" disabled><span aria-hidden="true">↻</span> Generate random words</button>
+          <button class="generate-text-button" id="generate-text-button" type="button" disabled><span aria-hidden="true">↻</span><span class="generate-label">Generate random words</span></button>
          <div class="share-area"><button class="share-button" id="share-button" type="button"><span class="share-glyph" aria-hidden="true">↓</span><span>Download Picture</span></button><button class="reset-button" id="reset-button" type="button">Reset to default</button></div>
       </aside>
     </section>
@@ -64,7 +65,7 @@
     </section>
     <p class="privacy-note">Your photo and words stay in this browser unless you choose to download the image.</p>
   </main>
-  <footer class="site-footer"><p>Created by <strong>Shey</strong></p><a href="mailto:vviamwho02@gmail.com?subject=All%20Things%20New%20website%20issue%20or%20enquiry"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Report an issue or enquiry</a></footer>
+  <footer class="site-footer"><p><span id="footer-label">Created by</span> <strong>Shey</strong></p><a href="mailto:vviamwho02@gmail.com?subject=All%20Things%20New%20website%20issue%20or%20enquiry"><i class="fa-regular fa-envelope" aria-hidden="true"></i><span id="report-label">Report an issue or enquiry</span></a></footer>
 
   <dialog class="edit-dialog" id="edit-dialog" aria-labelledby="dialog-title"><form method="dialog" id="edit-form"><button class="close-button" value="cancel" aria-label="Close editor">×</button><p class="eyebrow">Edit your message</p><h2 id="dialog-title">Change title</h2><label for="message-input" id="message-label">Title</label><textarea id="message-input" rows="5" maxlength="1000" spellcheck="true"></textarea><div class="input-tools"><span id="word-count">0 / 100 words</span><button type="button" class="speak-button" id="speak-button">Speak</button></div><p class="text-guidance" id="text-guidance" aria-live="polite"></p><p class="voice-status" id="voice-status" aria-live="polite"></p><button class="done-button" value="save">Done</button></form></dialog>
   <div class="share-dialog" id="share-dialog" hidden aria-labelledby="share-title"><div class="share-panel composer-panel"><div class="processing" id="processing-state"><span class="loader"></span><h2 id="share-title">Creating your image</h2><p>Preparing your post...</p></div><div class="post-composer" id="post-composer" hidden><button class="close-share" id="close-share" type="button" aria-label="Close post composer">×</button><p class="eyebrow">Step 2: Write and share your post</p><h2>Your image was downloaded</h2><p class="composer-message">Share it to your friend with your story!</p><div class="caption-heading"><label for="caption-input">Your caption</label><button class="caption-guide-button" id="caption-guide-button" type="button" aria-expanded="false" aria-controls="caption-guide-tip">💡 Need ideas?</button></div><textarea id="caption-input" rows="11" spellcheck="true" placeholder="Write your story here...&#10;&#10;Start with a feeling or struggle, share the turning point with Jesus, then offer hope to a friend."></textarea><div class="caption-guide-tip" id="caption-guide-tip" hidden><strong>A small writing kit</strong><span>1. Hook: name a feeling.</span><span>2. Turning point: bring it to Jesus.</span><span>3. Outcome: share the peace or fresh start.</span><span>4. Hope: encourage a friend.</span></div><label for="hashtag-input">Hashtags</label><input id="hashtag-input" class="hashtag-input" value="#AllThingsNew #HopeStartsHere" aria-describedby="hashtag-help"><p class="composer-help" id="hashtag-help">Add your own story hashtag after these two campaign hashtags.</p><img id="created-image-preview" class="created-image-preview" alt="Your generated post image"><p class="share-status" id="share-status" aria-live="polite"></p><p class="share-to-title">Choose where to share</p><div class="platform-actions"><button type="button" data-platform="facebook">Share to Facebook</button><button type="button" data-platform="whatsapp">Send with WhatsApp</button><button type="button" data-platform="instagram">Share to Instagram</button><button type="button" data-platform="tiktok">Share to TikTok</button></div></div></div></div>
@@ -72,6 +73,6 @@
   <div class="guide-layer" id="guide-layer" hidden aria-live="polite"></div>
   <script src="templates/templates.js?v=21"></script>
   <script src="supabase-config.js?v=2"></script>
-  <script src="app.js?v=33"></script>
+  <script src="app.js?v=36"></script>
 </body>
 </html>

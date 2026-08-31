@@ -14,6 +14,10 @@ let samplePreviewVersion = 0;
 let captionTips = [];
 let captionTipsShown = false;
 let textExamples = {};
+let templateTexts = {};
+let uiLanguages = {};
+let activeLanguage = "english";
+let languageLoadVersion = 0;
 let captionTipIndex = 1;
 let guideState = "idle";
 let guideIdleTimer = null;
@@ -69,24 +73,95 @@ async function initializeSiteStats() {
   await loadSiteStats();
 }
 
-async function loadCaptionTips() {
+const ui = (key) => uiLanguages[activeLanguage]?.[key] || uiLanguages.english?.[key] || key;
+
+async function loadLanguage(language) {
+  const version = ++languageLoadVersion;
+  const suffix = language === "english" ? "" : `-${language}`;
   try {
-    const response = await fetch("templates/caption-tips.json");
-    if (!response.ok) return;
-    captionTips = await response.json();
+    const [tipsResponse, examplesResponse, templatesResponse] = await Promise.all([
+      fetch(`templates/caption-tips${suffix}.json`),
+      fetch(`templates/text-examples${suffix}.json`),
+      language === "english" ? Promise.resolve(null) : fetch(`templates/template-text${suffix}.json`)
+    ]);
+    if (!tipsResponse.ok || !examplesResponse.ok || (templatesResponse && !templatesResponse.ok)) throw new Error("Language resources could not be loaded");
+    const [tips, examples, templates] = await Promise.all([tipsResponse.json(), examplesResponse.json(), templatesResponse?.json() || Promise.resolve({})]);
+    if (version !== languageLoadVersion) return;
+    activeLanguage = language;
+    captionTips = tips;
+    textExamples = examples;
+    templateTexts = templates;
+    captionTipIndex = 0;
+    captionTipsShown = false;
     if (captionTips[0]) $("#caption-input").placeholder = captionTips[0].hint;
-  } catch { captionTips = []; }
+    $("#generate-text-button").disabled = false;
+    applyUiLanguage();
+    applyTemplateDefaults();
+    updatePreview();
+  } catch { $("#generate-text-button").disabled = true; }
 }
 
-async function loadTextExamples() {
+async function loadUiLanguages() {
   try {
-    const response = await fetch("templates/text-examples.json");
-    if (!response.ok) throw new Error("Text examples could not be loaded");
-    textExamples = await response.json();
-    $("#generate-text-button").disabled = false;
-  } catch {
-    $("#generate-text-button").textContent = "Text examples unavailable";
-  }
+    const response = await fetch("templates/ui_language.json");
+    if (!response.ok) throw new Error("UI languages could not be loaded");
+    uiLanguages = await response.json();
+    await loadLanguage(activeLanguage);
+  } catch { /* The original English UI remains available if resource loading fails. */ }
+}
+
+function setButtonText(button, text) {
+  const label = button.lastElementChild;
+  if (label) label.textContent = text;
+  else button.textContent = text;
+}
+
+function applyUiLanguage() {
+  document.documentElement.lang = ui("documentLanguage");
+  document.body.dataset.language = activeLanguage;
+  document.querySelectorAll("[data-language]").forEach((button) => button.classList.toggle("is-selected", button.dataset.language === activeLanguage));
+  $(".site-header > div .eyebrow").textContent = ui("headerEyebrow");
+  $(".site-header h1").textContent = ui("brandTitle");
+  $("#watermark-title").textContent = ui("brandTitle");
+  $("#watermark-subtitle").textContent = ui("brandSubtitle");
+  $(".intro .eyebrow").textContent = ui("introEyebrow");
+  $("#intro-title").textContent = ui("introTitle");
+  $(".intro-copy").textContent = ui("introCopy");
+  $(".template-hint").textContent = ui("templateHint");
+  $(".editor-card > .eyebrow").textContent = ui("createEyebrow");
+  $(".upload-button .upload-label").textContent = ui("choosePhoto");
+  if (!uploadedPhotoUrl) $("#upload-note").textContent = ui("uploadNote");
+  $(".photo-reminder-full").textContent = ui("photoReminderFull");
+  $(".photo-reminder-short").textContent = ui("photoReminder");
+  $(".editor-heading").textContent = ui("wordsEyebrow");
+  $("[data-field='title'] strong").textContent = ui("title");
+  $("[data-field='subtitle'] strong").textContent = ui("subtitle");
+  $("#generate-text-button .generate-label").textContent = ui("generate");
+  setButtonText($("#share-button"), ui("makePicture"));
+  $("#reset-button").textContent = ui("reset");
+  $("label[for='caption-input']").textContent = ui("caption");
+  $("label[for='hashtag-input']").textContent = ui("hashtags");
+  $("#caption-guide-button").textContent = `💡 ${ui("showTips")}`;
+  $("#visitors-label").textContent = ui("visitors");
+  $("#shares-label").textContent = ui("sharedPosts");
+  $("#step-photo").textContent = ui("stepPhoto");
+  $("#step-words").textContent = ui("stepWords");
+  $("#step-post").textContent = ui("stepPost");
+  $(".privacy-note").textContent = ui("privacy");
+  $("#footer-label").textContent = ui("footer");
+  $("#report-label").textContent = ui("report");
+  $("#guide-bulb span:last-child").textContent = ui("guideButton");
+  $("#processing-state h2").textContent = ui("creating");
+  $("#processing-state p").textContent = ui("preparing");
+  $("#post-composer > .eyebrow").textContent = ui("composerStep");
+  $(".composer-message").textContent = ui("composerMessage");
+  $("#hashtag-help").textContent = ui("hashtagHelp");
+  $(".done-button").textContent = ui("done");
+  const actionButtons = $(".platform-actions").querySelectorAll("button");
+  setButtonText(actionButtons[0], ui("sharePost"));
+  setButtonText(actionButtons[1], ui("downloadCopy"));
+  setButtonText(actionButtons[2], ui("copyCaption"));
+  $(".share-to-title").textContent = ui("shareTitle");
 }
 
 function showCaptionTip() {
@@ -166,6 +241,11 @@ function addGuideCallout(target, message, step) {
 }
 
 function showCreationGuide() {
+  if (!$("#share-dialog").hidden && !$("#post-composer").hidden) {
+    guideState = "waiting-for-image";
+    showComposerGuide(true);
+    return;
+  }
   guideState = "creating";
   $("#guide-bulb").hidden = true;
   $(".editor-card").scrollIntoView({ behavior:"smooth", block:"center" });
@@ -175,12 +255,14 @@ function showCreationGuide() {
     layer.replaceChildren();
     const heading = document.createElement("p");
     heading.className = "guide-heading";
-    heading.textContent = "Let's create our post image!";
+    heading.textContent = ui("guideHeading");
     layer.append(heading);
-    addGuideCallout($(".upload-button"), "Choose a photo for your background", 1);
-    addGuideCallout($("[data-field='title']"), "Key in your title", 2);
-    addGuideCallout($("[data-field='subtitle']"), "Add a subtitle", 3);
-    addGuideCallout($("#share-button"), "When you are ready, make your picture", 4);
+    addGuideCallout($(".upload-button"), ui("guideUpload"), 1);
+    if (!window.matchMedia("(max-width: 600px)").matches) {
+      addGuideCallout($("[data-field='title']"), ui("guideTitle"), 2);
+      addGuideCallout($("[data-field='subtitle']"), ui("guideSubtitle"), 3);
+    }
+    addGuideCallout($("#share-button"), ui("guideCreate"), window.matchMedia("(max-width: 600px)").matches ? 2 : 4);
     setTimeout(() => document.addEventListener("click", dismissCreationGuide, { once:true }), 100);
   }, 400);
 }
@@ -195,15 +277,15 @@ function dismissGuideMessage(expectedState) {
   if (guideState === expectedState) clearGuide();
 }
 
-function showComposerGuide() {
+function showComposerGuide(isManualGuide = false) {
   if (guideState !== "waiting-for-image") return;
   guideState = "writing-caption";
   guideCaptionWritten = false;
-  if (window.matchMedia("(max-width: 600px)").matches) return;
+  if (window.matchMedia("(max-width: 600px)").matches && !isManualGuide) return;
   const layer = $("#guide-layer");
   layer.hidden = false;
   layer.replaceChildren();
-  addGuideCallout($("#caption-input"), "Write your story about the picture!", "");
+  addGuideCallout($("#caption-input"), ui("guideCaption"), "");
   setTimeout(() => document.addEventListener("click", () => dismissGuideMessage("writing-caption"), { once:true }), 100);
 }
 
@@ -214,7 +296,7 @@ function showSharingGuide() {
   if (window.matchMedia("(max-width: 600px)").matches) return;
   const layer = $("#guide-layer");
   layer.hidden = false;
-  addGuideCallout($(".platform-actions"), "Your story is ready. Choose where to share it.", "");
+  addGuideCallout($(".platform-actions"), ui("guideShare"), "");
   setTimeout(() => document.addEventListener("click", () => dismissGuideMessage("sharing"), { once:true }), 100);
 }
 
@@ -226,7 +308,7 @@ function resetGuideIdleTimer() {
 }
 
 function applyTemplateDefaults() {
-  Object.assign(state, currentTemplate().defaults || defaults);
+  Object.assign(state, templateTexts[currentTemplate().id] || currentTemplate().defaults || defaults);
 }
 
 function updateTemplateControls() {
@@ -393,8 +475,8 @@ function replaceUploadedPhoto(file) {
 
 function openEditor(field) {
   activeField = field;
-  $("#dialog-title").textContent = field === "title" ? "Edit title" : "Edit subtitle";
-  $("#message-label").textContent = field === "title" ? "Title" : "Subtitle";
+  $("#dialog-title").textContent = field === "title" ? ui("editTitle") : ui("editSubtitle");
+  $("#message-label").textContent = field === "title" ? ui("title") : ui("subtitle");
   $("#message-input").value = state[field];
   updateWordCount();
   $("#voice-status").textContent = "";
@@ -491,10 +573,10 @@ function drawWatermark(context, template, scale) {
     gradient.addColorStop(1, template.id === "ig-02" ? "#75e6cb" : "#70d7ef");
     context.fillStyle = gradient;
   } else context.fillStyle = "white";
-  context.fillText("ALL THINGS NEW", x + width / 2, y + height * .58);
+  context.fillText(ui("brandTitle"), x + width / 2, y + height * .58);
   context.font = `300 ${height * .3}px Montserrat, Arial, sans-serif`;
   context.fillStyle = template.id === "fb-02" || template.id === "ig-02" ? "black" : "white";
-  context.fillText("HOPE STARTS HERE", x + width / 2, y + height);
+  context.fillText(ui("brandSubtitle"), x + width / 2, y + height);
   context.restore();
 }
 
@@ -546,10 +628,10 @@ function drawTemplateText(context, template) {
   do {
     titleSize = (template.titleSize || 48.5) * scale * textScale;
     subtitleSize = (template.subtitleSize || 35.7) * scale * textScale;
-    context.font = `${template.titleWeight} ${titleSize}px Montserrat, Arial, sans-serif`;
+    context.font = `${template.titleWeight} ${titleSize}px ${activeLanguage === "chinese" ? "'Noto Sans SC', sans-serif" : "Montserrat, Arial, sans-serif"}`;
     titleLines = wrapText(context, state.title, maxWidth);
     widestLine = Math.max(...titleLines.map((line) => context.measureText(line).width));
-    context.font = `400 ${subtitleSize}px Montserrat, Arial, sans-serif`;
+    context.font = `400 ${subtitleSize}px ${activeLanguage === "chinese" ? "'Noto Sans SC', sans-serif" : "Montserrat, Arial, sans-serif"}`;
     subtitleLines = wrapText(context, state.subtitle, maxWidth);
     widestLine = Math.max(widestLine, ...subtitleLines.map((line) => context.measureText(line).width));
     subtitleHeight = subtitleSize + (subtitleLines.length - 1) * subtitleSize * 1.25;
@@ -576,11 +658,11 @@ function drawTemplateText(context, template) {
     textScale -= .02;
   } while ((widestLine > maxWidth || titleY - titleSize < topPadding || subtitleY - subtitleSize < topPadding || titleY + (titleLines.length - 1) * titleSize * 1.15 > template.height - bottomPadding || subtitleY + (subtitleLines.length - 1) * subtitleSize * 1.25 > template.height - bottomPadding) && textScale > .1);
 
-  context.font = `${template.titleWeight} ${titleSize}px Montserrat, Arial, sans-serif`;
+  context.font = `${template.titleWeight} ${titleSize}px ${activeLanguage === "chinese" ? "'Noto Sans SC', sans-serif" : "Montserrat, Arial, sans-serif"}`;
   const titleAlign = template.textAlign || (template.layout === "left-center" || template.layout === "bottom-left" ? "left" : "center");
   context.textAlign = titleAlign;
   titleLines.forEach((text, index) => context.fillText(text, titleAlign === "left" ? padding : titleAlign === "right" ? template.width - padding : template.width / 2, titleY + index * titleSize * 1.15));
-  context.font = `400 ${subtitleSize}px Montserrat, Arial, sans-serif`;
+  context.font = `400 ${subtitleSize}px ${activeLanguage === "chinese" ? "'Noto Sans SC', sans-serif" : "Montserrat, Arial, sans-serif"}`;
   const subtitleAlign = template.subtitleAlign || template.textAlign || (template.layout === "left-center" ? "right" : template.layout === "bottom-left" ? "left" : "center");
   context.textAlign = subtitleAlign;
   subtitleLines.forEach((text, index) => context.fillText(text, subtitleAlign === "right" ? template.width - padding : subtitleAlign === "left" ? padding : template.width / 2, subtitleY + index * subtitleSize * 1.25));
@@ -699,6 +781,7 @@ $("#guide-bulb").addEventListener("click", showCreationGuide);
 ].forEach((eventName) => window.addEventListener(eventName, resetGuideIdleTimer, { passive:true }));
 $("#photo-upload").addEventListener("change", (event) => replaceUploadedPhoto(event.target.files[0]));
 document.querySelectorAll("[data-format]").forEach((button) => button.addEventListener("click", () => selectFormat(button.dataset.format)));
+document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => loadLanguage(button.dataset.language)));
 $("#previous-template").addEventListener("click", () => changeTemplate(-1));
 $("#next-template").addEventListener("click", () => changeTemplate(1));
 $("#reset-button").addEventListener("click", () => {
@@ -714,8 +797,7 @@ $("#generate-text-button").addEventListener("click", generateText);
 $("#share-dialog").hidden = true;
 $("#share-dialog").style.display = "none";
 setupComposer();
-loadCaptionTips();
-loadTextExamples();
+loadUiLanguages();
 updatePreview();
 resetGuideIdleTimer();
 initializeSiteStats();
