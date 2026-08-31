@@ -12,6 +12,7 @@ let shareActionChosen = false;
 let sampleImageUrl = null;
 let samplePreviewVersion = 0;
 let captionTips = [];
+let captionTipsShown = false;
 let textExamples = {};
 let captionTipIndex = 1;
 let guideState = "idle";
@@ -99,6 +100,7 @@ function showCaptionTip() {
   title.textContent = tip.title;
   tipElement.append(title, ...tip.steps.map((step) => { const item = document.createElement("span"); item.textContent = step; return item; }));
   tipElement.hidden = false;
+  captionTipsShown = true;
   $("#caption-guide-button").setAttribute("aria-expanded", "true");
 }
 
@@ -602,6 +604,8 @@ async function prepareImage() {
     $("#created-image-preview").src = createdImageUrl;
     $("#redownload-help").hidden = createdImageDownloaded;
     $("#share-fallback-message").hidden = true;
+    $("#caption-guide-tip").hidden = !captionTipsShown;
+    $("#caption-guide-button").setAttribute("aria-expanded", String(captionTipsShown));
     $("#processing-state").hidden = true;
     $("#post-composer").hidden = false;
     showComposerGuide();

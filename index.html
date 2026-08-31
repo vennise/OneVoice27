@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body>
   <main class="page-shell">
@@ -35,7 +35,7 @@
           <button class="template-text title-text" id="title-preview" type="button" aria-label="Edit title">Come to me, all you who are weary and burdened, and I will give you rest</button>
           <button class="template-text subtitle-text" id="subtitle-preview" type="button" aria-label="Edit subtitle">Matthew  11:28</button>
         </div>
-        <p class="template-hint">Select the title or scripture reference on the image to edit it.</p>
+        <p class="template-hint">Tap the title or subtitle on the image to edit it.</p>
       </div>
 
       <aside class="editor-card" aria-label="Post controls">
@@ -48,7 +48,7 @@
          <button class="edit-row" type="button" data-field="title"><span class="edit-icon" aria-hidden="true">T</span><span><strong>Title</strong><small id="title-summary">Come to me, all you who are weary and burdened, and I will give you rest</small></span><span class="chevron" aria-hidden="true">›</span></button>
          <button class="edit-row" type="button" data-field="subtitle"><span class="edit-icon voice" aria-hidden="true">⌁</span><span><strong>Subtitle</strong><small id="subtitle-summary">Matthew  11:28</small></span><span class="chevron" aria-hidden="true">›</span></button>
          <button class="generate-text-button" id="generate-text-button" type="button" disabled><span aria-hidden="true">↻</span> Generate random words</button>
-         <div class="share-area"><button class="share-button" id="share-button" type="button"><span class="share-glyph" aria-hidden="true">↓</span><span>Make my picture</span></button><button class="reset-button" id="reset-button" type="button">Start again</button></div>
+         <div class="share-area"><button class="share-button" id="share-button" type="button"><span class="share-glyph" aria-hidden="true">↓</span><span>Download Picture</span></button><button class="reset-button" id="reset-button" type="button">Reset to default</button></div>
       </aside>
     </section>
 
@@ -72,6 +72,6 @@
   <div class="guide-layer" id="guide-layer" hidden aria-live="polite"></div>
   <script src="templates/templates.js?v=21"></script>
   <script src="supabase-config.js?v=2"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=30"></script>
 </body>
 </html>

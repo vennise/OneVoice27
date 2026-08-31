@@ -1,6 +1,6 @@
 const title = "Come to me, all you\nwho are weary and\nburdened, and I will\ngive you rest";
 const subtitle = "Matthew  11:28";
-const caption = "I have personally experienced God when I was in trouble. He is a very presence help in trouble\n\n#All THINGS NEW";
+const caption = "I have personally experienced God when I was in trouble. He is a very presence help in trouble\n#All THINGS NEW";
 const width = 940;
 const height = 788;
 
