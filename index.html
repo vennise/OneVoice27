@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=32">
+  <link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
   <main class="page-shell">
@@ -29,6 +29,7 @@
       <div class="template-wrap">
         <div class="format-switch" aria-label="Post format"><button class="format-button is-selected" type="button" data-format="facebook">Facebook</button><button class="format-button" type="button" data-format="instagram">Instagram</button></div>
         <div class="template-navigation"><button class="template-nav" id="previous-template" type="button" aria-label="Previous template">‹</button><p><strong id="template-name">Hope</strong><span id="template-size">940 × 788</span></p><button class="template-nav" id="next-template" type="button" aria-label="Next template">›</button></div>
+        <div id="template-origin" aria-hidden="true"></div>
         <div class="template" id="template" role="img" aria-label="Editable post template">
           <img id="background-image" src="resources/images/facebook/background_04.png" alt="Selected post background">
           <div class="template-overlay template-watermark" id="template-watermark" aria-hidden="true"><span id="watermark-title">ALL THINGS NEW</span><span id="watermark-subtitle">HOPE STARTS HERE</span></div>
@@ -39,6 +40,7 @@
         <p class="template-hint">Tap the title or subtitle on the image to edit it.</p>
       </div>
 
+      <div id="editor-origin" aria-hidden="true"></div>
       <aside class="editor-card" aria-label="Post controls">
         <p class="eyebrow">Step 1: Create your post image</p>
         <label class="upload-button" for="photo-upload"><span aria-hidden="true">↑</span><span class="upload-label">Choose a photo</span></label>
@@ -51,6 +53,19 @@
           <button class="generate-text-button" id="generate-text-button" type="button" disabled><span aria-hidden="true">↻</span><span class="generate-label">Generate random words</span></button>
          <div class="share-area"><button class="share-button" id="share-button" type="button"><span class="share-glyph" aria-hidden="true">↓</span><span>Download Picture</span></button><button class="reset-button" id="reset-button" type="button">Reset to default</button></div>
       </aside>
+    </section>
+
+    <section class="mobile-post-editor" id="mobile-post-editor" data-platform="facebook" aria-label="Mobile post editor">
+      <header class="mobile-post-header"><img src="resources/images/logo.png" alt=""><span><strong id="mobile-user-name">All Things New</strong><small id="mobile-post-time"></small></span><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></header>
+      <div class="mobile-caption-field"><label for="mobile-caption-input" id="mobile-caption-label">Tap to write your Facebook caption...</label><textarea id="mobile-caption-input" rows="5" spellcheck="true" placeholder="What's on your mind?"></textarea></div>
+      <input id="mobile-hashtag-input" class="mobile-hashtag-input" value="#AllThingsNew #HopeStartsHere" aria-label="Hashtags">
+      <div id="mobile-template-slot"></div>
+      <div class="mobile-post-reactions" aria-hidden="true"><span><i class="fa-regular fa-thumbs-up"></i> Like</span><span><i class="fa-regular fa-comment"></i> Comment</span><span><i class="fa-solid fa-share"></i> Share</span></div>
+    </section>
+    <section class="mobile-post-actions" aria-label="Mobile post actions">
+      <div id="mobile-editor-slot"></div>
+      <p class="mobile-post-status" id="mobile-post-status" aria-live="polite"></p>
+      <button class="mobile-download-button" id="mobile-download-button" type="button"><i class="fa-solid fa-download" aria-hidden="true"></i><span>Download image and copy text</span></button>
     </section>
 
     <section class="guide-section" aria-labelledby="guide-title">
@@ -73,6 +88,6 @@
   <div class="guide-layer" id="guide-layer" hidden aria-live="polite"></div>
   <script src="templates/templates.js?v=21"></script>
   <script src="supabase-config.js?v=2"></script>
-  <script src="app.js?v=37"></script>
+  <script src="app.js?v=41"></script>
 </body>
 </html>

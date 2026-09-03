@@ -320,7 +320,31 @@ function updateTemplateControls() {
   document.querySelectorAll("[data-format]").forEach((button) => button.classList.toggle("is-selected", button.dataset.format === activeFormat));
 }
 
+function placeMobileTemplate() {
+  const template = $("#template");
+  const mobileSlot = $("#mobile-template-slot");
+  const origin = $("#template-origin");
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    if (template.parentElement !== mobileSlot) mobileSlot.append(template);
+  } else if (template.parentElement !== origin.parentElement) {
+    origin.after(template);
+  }
+}
+
+function placeMobileEditor() {
+  const editor = $(".editor-card");
+  const mobileSlot = $("#mobile-editor-slot");
+  const origin = $("#editor-origin");
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    if (editor.parentElement !== mobileSlot) mobileSlot.append(editor);
+  } else if (editor.parentElement !== origin.parentElement) {
+    origin.after(editor);
+  }
+}
+
 function updatePreview() {
+  placeMobileTemplate();
+  placeMobileEditor();
   updateTemplateControls();
   $("#background-image").src = currentImageUrl();
   positionTemplateOverlays();
@@ -330,6 +354,21 @@ function updatePreview() {
   });
   fitPreviewText();
   updateSocialPostPreview();
+  updateMobilePostPreview();
+}
+
+function mobilePostDate() {
+  return new Intl.DateTimeFormat(undefined, { dateStyle:"medium", timeStyle:"short" }).format(new Date());
+}
+
+async function updateMobilePostPreview() {
+  if (!window.matchMedia("(max-width: 760px)").matches) return;
+  const editor = $("#mobile-post-editor");
+  editor.dataset.platform = activeFormat;
+  $("#mobile-user-name").textContent = activeFormat === "facebook" ? "All Things New" : "allthingsnew.hope";
+  $("#mobile-post-time").textContent = activeFormat === "facebook" ? `${mobilePostDate()} · Public` : mobilePostDate();
+  $("#mobile-caption-label").textContent = activeFormat === "facebook" ? "Tap to write your Facebook caption..." : "Tap to write your Instagram caption...";
+  $("#mobile-caption-input").placeholder = activeFormat === "facebook" ? "What's on your mind?" : "Write a caption...";
 }
 
 async function updateSocialPostPreview() {
@@ -703,9 +742,32 @@ async function prepareImage() {
 }
 
 function postText() {
-  const caption = $("#caption-input").value.trim();
-  const hashtags = $("#hashtag-input").value.trim();
+  const isMobile = window.matchMedia("(max-width: 760px)").matches;
+  const caption = $(isMobile ? "#mobile-caption-input" : "#caption-input").value.trim();
+  const hashtags = $(isMobile ? "#mobile-hashtag-input" : "#hashtag-input").value.trim();
   return [caption, hashtags].filter(Boolean).join("\n\n");
+}
+
+async function downloadMobilePost() {
+  const status = $("#mobile-post-status");
+  const button = $("#mobile-download-button");
+  button.disabled = true;
+  try {
+    const imageBlob = await createImage();
+    if (!imageBlob) throw new Error("Image creation failed");
+    createdImageBlob = imageBlob;
+    const downloaded = downloadImage(imageBlob);
+    let copied = false;
+    try {
+      if (navigator.clipboard) { await navigator.clipboard.writeText(postText()); copied = true; }
+    } catch { /* Clipboard access can be denied by a browser setting. */ }
+    status.textContent = downloaded && copied ? "Image downloaded and caption with hashtags copied." : downloaded ? "Image downloaded. Copy the caption and hashtags above before posting." : "Your image is ready. Please try downloading again.";
+    if (downloaded) recordSuccessfulShare();
+  } catch {
+    status.textContent = "The image could not be created. Please try another photo.";
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function downloadAndCopyPost() {
@@ -766,6 +828,7 @@ async function shareCreatedPost() {
 }
 
 $("#share-button").addEventListener("click", () => { if (guideState === "waiting-for-image") clearGuide(); showShareDialog(); prepareImage(); });
+$("#mobile-download-button").addEventListener("click", downloadMobilePost);
 $("#close-share").addEventListener("click", async () => {
   finishShareDialog();
   clearGuide();
@@ -801,4 +864,4 @@ loadUiLanguages();
 updatePreview();
 resetGuideIdleTimer();
 initializeSiteStats();
-window.addEventListener("resize", fitPreviewText);
+window.addEventListener("resize", () => { placeMobileTemplate(); placeMobileEditor(); fitPreviewText(); updateMobilePostPreview(); });

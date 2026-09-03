@@ -53,3 +53,48 @@ body[data-format="instagram"] .site-footer strong { color:#fff; text-shadow:0 1p
 .photo-reminder-short { display:none; }
 @media (max-width:760px) { .site-header .visitor-count { display:none; }.steps,.guide-section,.upload-note { display:none; }.template-hint { display:block; margin-top:12px; font-size:13px; }.editor-heading,.edit-row,.generate-text-button { display:none; }.photo-reminder-full { display:none; }.photo-reminder-short { display:inline; } }
 @media (max-width:900px) and (min-width:761px) { .page-shell { padding:26px 24px 44px; }.intro { display:block; padding:42px 0 28px; }.steps { margin-top:22px; }.workspace { display:block; }.editor-card { margin-top:28px; }.guide-section { padding:32px; } }
+
+.mobile-post-editor,.mobile-post-actions { display:none; }
+@media (max-width:760px) {
+  .intro,.privacy-note,.site-footer,.template-hint { display:none; }
+  .page-shell { padding-top:16px; padding-bottom:28px; }
+  .editor-card { margin-top:16px; padding:0; border:0; background:transparent; box-shadow:none; }
+  .editor-card > .eyebrow,.editor-card .share-area { display:none; }
+  .photo-reminder { margin-top:10px; }
+  .guide-bulb { display:none !important; }
+  .mobile-post-editor { display:block; overflow:hidden; margin-top:24px; color:#1c1e21; background:#fff; border:1px solid #d8dce1; border-radius:10px; box-shadow:0 2px 8px #00000012; font-family:Arial,sans-serif; }
+  .mobile-post-actions { display:block; }
+  .mobile-post-header { display:flex; align-items:center; gap:10px; padding:14px 14px 10px; }
+  .mobile-post-header img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+  .mobile-post-header span { display:grid; gap:2px; min-width:0; }
+  .mobile-post-header strong { color:#1c1e21; font-size:14px; }
+  .mobile-post-header small { color:#65676b; font-size:12px; }
+  .mobile-post-header > i { margin-left:auto; color:#65676b; }
+  .mobile-caption-field { padding:0 14px; }
+  .mobile-caption-field label { margin:0 0 7px; color:#65676b; font-size:13px; font-weight:400; }
+  .mobile-caption-field textarea { min-height:112px; padding:11px; color:#1c1e21; border:1px solid #ccd0d5; border-radius:8px; font:15px/1.4 Arial,sans-serif; resize:vertical; }
+  .mobile-caption-field textarea::placeholder { color:#65676b; }
+  .mobile-hashtag-input { width:calc(100% - 28px); min-height:42px; margin:10px 14px 14px; padding:9px 11px; color:#1877f2; border:1px solid #ccd0d5; border-radius:8px; font:14px Arial,sans-serif; }
+  #mobile-template-slot .template { width:100%; border:0; border-radius:0; box-shadow:none; }
+  .mobile-post-reactions { display:grid; grid-template-columns:repeat(3,1fr); margin:0 8px; padding:4px 0; color:#65676b; border-top:1px solid #e4e6eb; font:14px Arial,sans-serif; font-weight:700; text-align:center; }
+  .mobile-post-reactions span { padding:9px 2px; }
+  .mobile-post-reactions i { margin-right:4px; }
+  .mobile-post-status { min-height:0; margin:0; padding:0 14px; color:#52657d; font:13px/1.45 Arial,sans-serif; }
+  .mobile-post-status:not(:empty) { padding-top:12px; }
+  .mobile-download-button { display:flex; align-items:center; justify-content:center; gap:9px; width:calc(100% - 28px); min-height:50px; margin:14px; color:#fff; background:#1877f2; border:0; border-radius:8px; font:15px Arial,sans-serif; font-weight:700; }
+  .mobile-download-button i { font-size:18px; }
+  .mobile-download-button:active { background:#0c4da2; }
+
+  body[data-format="instagram"] .mobile-post-editor { border-color:#dbdbdb; border-radius:3px; box-shadow:none; }
+  body[data-format="instagram"] .mobile-post-header { padding:12px; }
+  body[data-format="instagram"] .mobile-post-header strong { font-size:13px; }
+  body[data-format="instagram"] .mobile-post-header small { color:#8e8e8e; text-transform:uppercase; font-size:10px; }
+  body[data-format="instagram"] .mobile-caption-field { padding:0 12px; }
+  body[data-format="instagram"] .mobile-caption-field label { color:#262626; font-weight:700; }
+  body[data-format="instagram"] .mobile-caption-field textarea { min-height:104px; padding:0; border:0; border-radius:0; font-size:14px; }
+  body[data-format="instagram"] .mobile-hashtag-input { width:calc(100% - 24px); margin:8px 12px 12px; padding:0; color:#00376b; border:0; border-radius:0; font-size:14px; }
+  body[data-format="instagram"] .mobile-post-reactions { margin:0; padding:6px 12px; color:#262626; border-top:0; text-align:left; }
+  body[data-format="instagram"] .mobile-post-reactions span { padding:4px 0; font-size:0; }
+  body[data-format="instagram"] .mobile-post-reactions i { margin:0; font-size:23px; }
+  body[data-format="instagram"] .mobile-download-button { width:calc(100% - 24px); margin:12px; background:#0095f6; border-radius:8px; }
+}
