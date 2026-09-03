@@ -9,6 +9,14 @@
     html,body,iframe { width:100%; min-height:100%; margin:0; border:0; }
     iframe { display:block; min-height:100vh; }
   </style>
+  <script>
+    const desktopMedia = window.matchMedia("(min-width: 761px)");
+    const showDesktopPage = () => {
+      if (desktopMedia.matches) window.location.replace("index.html");
+    };
+    showDesktopPage();
+    desktopMedia.addEventListener("change", showDesktopPage);
+  </script>
 </head>
 <body>
   <iframe src="index.html?mobile=1" title="All Things New mobile post creator"></iframe>

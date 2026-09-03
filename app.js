@@ -95,10 +95,14 @@ async function loadLanguage(language) {
     captionTipsShown = false;
     if (captionTips[0]) $("#caption-input").placeholder = captionTips[0].hint;
     $("#generate-text-button").disabled = false;
+    $("#mobile-generate-text-button").disabled = false;
     applyUiLanguage();
     applyTemplateDefaults();
     updatePreview();
-  } catch { $("#generate-text-button").disabled = true; }
+  } catch {
+    $("#generate-text-button").disabled = true;
+    $("#mobile-generate-text-button").disabled = true;
+  }
 }
 
 async function loadUiLanguages() {
@@ -325,7 +329,7 @@ function placeMobileTemplate() {
   const mobileSlot = $("#mobile-template-slot");
   const origin = $("#template-origin");
   if (window.matchMedia("(max-width: 760px)").matches) {
-    if (template.parentElement !== mobileSlot) mobileSlot.append(template);
+    if (template.parentElement !== mobileSlot) mobileSlot.prepend(template);
   } else if (template.parentElement !== origin.parentElement) {
     origin.after(template);
   }
@@ -856,6 +860,7 @@ $("#reset-button").addEventListener("click", () => {
   updatePreview();
 });
 $("#generate-text-button").addEventListener("click", generateText);
+$("#mobile-generate-text-button").addEventListener("click", generateText);
 
 $("#share-dialog").hidden = true;
 $("#share-dialog").style.display = "none";

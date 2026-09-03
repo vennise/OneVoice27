@@ -75,7 +75,10 @@ body[data-format="instagram"] .site-footer strong { color:#fff; text-shadow:0 1p
   .mobile-caption-field textarea { min-height:112px; padding:11px; color:#1c1e21; border:1px solid #ccd0d5; border-radius:8px; font:15px/1.4 Arial,sans-serif; resize:vertical; }
   .mobile-caption-field textarea::placeholder { color:#65676b; }
   .mobile-hashtag-input { width:calc(100% - 28px); min-height:42px; margin:10px 14px 14px; padding:9px 11px; color:#1877f2; border:1px solid #ccd0d5; border-radius:8px; font:14px Arial,sans-serif; }
+  #mobile-template-slot { position:relative; }
   #mobile-template-slot .template { width:100%; border:0; border-radius:0; box-shadow:none; }
+  .mobile-generate-text-button { position:absolute; right:12px; bottom:12px; z-index:4; display:grid; place-items:center; width:42px; height:42px; padding:0; color:#fff; background:#1877f2b8; border:1px solid #ffffff99; border-radius:50%; box-shadow:0 5px 16px #0000004d; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .mobile-generate-text-button:disabled { opacity:.65; }
   .mobile-post-reactions { display:grid; grid-template-columns:repeat(3,1fr); margin:0 8px; padding:4px 0; color:#65676b; border-top:1px solid #e4e6eb; font:14px Arial,sans-serif; font-weight:700; text-align:center; }
   .mobile-post-reactions span { padding:9px 2px; }
   .mobile-post-reactions i { margin-right:4px; }
@@ -93,6 +96,7 @@ body[data-format="instagram"] .site-footer strong { color:#fff; text-shadow:0 1p
   body[data-format="instagram"] .mobile-caption-field label { color:#262626; font-weight:700; }
   body[data-format="instagram"] .mobile-caption-field textarea { min-height:104px; padding:0; border:0; border-radius:0; font-size:14px; }
   body[data-format="instagram"] .mobile-hashtag-input { width:calc(100% - 24px); margin:8px 12px 12px; padding:0; color:#00376b; border:0; border-radius:0; font-size:14px; }
+  body[data-format="instagram"] .mobile-generate-text-button { background:linear-gradient(135deg,#833ab4c9,#fd1d86b8 58%,#fcb045b8); }
   body[data-format="instagram"] .mobile-post-reactions { margin:0; padding:6px 12px; color:#262626; border-top:0; text-align:left; }
   body[data-format="instagram"] .mobile-post-reactions span { padding:4px 0; font-size:0; }
   body[data-format="instagram"] .mobile-post-reactions i { margin:0; font-size:23px; }
